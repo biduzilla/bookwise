@@ -22,15 +22,15 @@ const (
 )
 
 type ReadingPlan struct {
-	ID            int64
-	Status        ReadingStatus
-	StartDate     *time.Time
-	TargetDate    *time.Time
-	Priority      ReadingPriority
-	PagesPerDay   int
-	MinutesPerDay int
-	Book          Book
-	User          User
+	ID            int64           `db:"id"`
+	Status        ReadingStatus   `db:"status"`
+	StartDate     *time.Time      `db:"start_date"`
+	TargetDate    *time.Time      `db:"target_date"`
+	Priority      ReadingPriority `db:"priority"`
+	PagesPerDay   int             `db:"pages_per_day"`
+	MinutesPerDay int             `db:"minutes_per_day"`
+	Book          *Book           `db:"book_id"`
+	User          *User           `db:"user_id"`
 
 	BaseModel
 }
@@ -134,11 +134,11 @@ func (dto ReadingPlanDTO) ToModel() *ReadingPlan {
 	}
 
 	if dto.Book != nil {
-		model.Book = *dto.Book.ToModel()
+		model.Book = dto.Book.ToModel()
 	}
 
 	if dto.User != nil {
-		model.User = *dto.User.ToModel()
+		model.User = dto.User.ToModel()
 	}
 
 	return &model
