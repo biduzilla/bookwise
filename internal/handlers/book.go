@@ -66,15 +66,15 @@ func (h *bookHandler) FindAll(w http.ResponseWriter, r *http.Request) {
 		input.Filters,
 	)
 
+	if err != nil {
+		h.errRsp.HandlerErrorResponse(w, r, err, v)
+		return
+	}
+
 	dtos := make([]*models.BookDTO, 0, len(books))
 
 	for _, book := range books {
 		dtos = append(dtos, book.ToDTO())
-	}
-
-	if err != nil {
-		h.errRsp.HandlerErrorResponse(w, r, err, v)
-		return
 	}
 
 	respond(w, r, http.StatusOK, utils.Envelope{"books": dtos, "metadata": metadata}, nil, h.errRsp)
