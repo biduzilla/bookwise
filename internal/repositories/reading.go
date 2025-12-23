@@ -42,6 +42,31 @@ func NewReadingSessionRepository(db *sql.DB,
 	}
 }
 
+type ReadingPlanRepository interface {
+	GetAll(
+		status *models.ReadingStatus,
+		startDate *time.Time,
+		targetDate *time.Time,
+		userID, bookID int64,
+		f filters.Filters,
+	) ([]*models.ReadingPlan, filters.Metadata, error)
+	GetByID(id, userID int64) (*models.ReadingPlan, error)
+	Insert(
+		tx *sql.Tx,
+		plan *models.ReadingPlan,
+	) error
+	Update(
+		tx *sql.Tx,
+		plan *models.ReadingPlan,
+		userID int64,
+	) error
+	Delete(
+		tx *sql.Tx,
+		planID int64,
+		userID int64,
+	) error
+}
+
 func (r *readingPlanRepository) GetAll(
 	status *models.ReadingStatus,
 	startDate *time.Time,

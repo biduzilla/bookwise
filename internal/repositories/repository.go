@@ -14,8 +14,9 @@ import (
 )
 
 type Repository struct {
-	User UserRepositoryInterface
-	Book BookRepository
+	User        UserRepositoryInterface
+	Book        BookRepository
+	ReadingPlan ReadingPlanRepository
 }
 
 type FactoryFunc[T any] func() *T
@@ -25,8 +26,9 @@ func NewRepository(
 	db *sql.DB,
 ) *Repository {
 	return &Repository{
-		User: NewUserRepository(db, logger),
-		Book: NewBookRepository(db, logger),
+		User:        NewUserRepository(db, logger),
+		Book:        NewBookRepository(db, logger),
+		ReadingPlan: NewReadingPlanRepository(db, logger),
 	}
 }
 
@@ -45,14 +47,6 @@ func scanStruct(row *sql.Row, dest any) error {
 	}
 
 	return nil
-}
-
-func scanStructRows(rows *sql.Rows, dest any) error {
-	fields, err := collectFields(dest)
-	if err != nil {
-		return err
-	}
-	return rows.Scan(fields...)
 }
 
 func collectFields(dest any) ([]any, error) {

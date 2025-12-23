@@ -20,9 +20,10 @@ type GenericServiceInterface[
 }
 
 type Services struct {
-	User UserService
-	Auth AuthServiceInterface
-	Book BookService
+	User        UserService
+	Auth        AuthServiceInterface
+	Book        BookService
+	ReadingPlan ReadingPlanService
 }
 
 func NewServices(logger jsonlog.Logger, db *sql.DB, config config.Config) *Services {
@@ -30,9 +31,9 @@ func NewServices(logger jsonlog.Logger, db *sql.DB, config config.Config) *Servi
 	userService := NewUserService(r.User, db)
 
 	return &Services{
-		User: userService,
-		Auth: NewAuthService(userService, config),
-		Book: NewBookService(r.Book, db),
+		User:        userService,
+		Auth:        NewAuthService(userService, config),
+		Book:        NewBookService(r.Book, db),
+		ReadingPlan: NewReadingPlanService(r.ReadingPlan, db),
 	}
-
 }
