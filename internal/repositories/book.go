@@ -58,11 +58,14 @@ func (r *bookRepository) GetAll(title, author string,
 	userID int64,
 	f filters.Filters,
 ) ([]*models.Book, filters.Metadata, error) {
+	cols := strings.Join([]string{
+		selectColumns(models.Book{}, "b"),
+		selectColumns(models.User{}, "u"),
+	}, ", ")
 	query := fmt.Sprintf(`
         SELECT
             count(*) OVER(),
-            b.*,
-            u.*
+           	%s
         FROM books b
         LEFT JOIN users u ON u.id = b.user_id
         WHERE
@@ -71,16 +74,18 @@ func (r *bookRepository) GetAll(title, author string,
             AND b.deleted = false
 			and b.user_id = :userID
         ORDER BY
-            %s %s,
-            id ASC
+            b.%s %s,
+            b.id ASC
         LIMIT :limit
         OFFSET :offset
-    `, f.SortColumn(), f.SortDirection())
+    `, cols, f.SortColumn(), f.SortDirection())
 
 	params := map[string]any{
 		"title":  title,
 		"author": author,
 		"userID": userID,
+		"limit":  f.Limit(),
+		"offset": f.Offset(),
 	}
 
 	query, args := namedQuery(query, params)

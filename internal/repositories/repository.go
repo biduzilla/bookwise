@@ -148,13 +148,22 @@ func paginatedQuery[T any](
 	models := []*T{}
 
 	for rows.Next() {
-		model := factory()
-		err := scanStructRows(rows, model)
+		var total int
 
+		model := factory()
+
+		fields, err := collectFields(model)
 		if err != nil {
 			return nil, filters.Metadata{}, err
 		}
 
+		scanArgs := append([]any{&total}, fields...)
+
+		if err := rows.Scan(scanArgs...); err != nil {
+			return nil, filters.Metadata{}, err
+		}
+
+		totalRecords = total
 		models = append(models, model)
 	}
 	if err = rows.Err(); err != nil {
