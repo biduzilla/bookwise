@@ -19,24 +19,10 @@ type readingPlanRepository struct {
 	logger jsonlog.Logger
 }
 
-type readingSession struct {
-	db     *sql.DB
-	logger jsonlog.Logger
-}
-
 func NewReadingPlanRepository(db *sql.DB,
 	logger jsonlog.Logger,
 ) *readingPlanRepository {
 	return &readingPlanRepository{
-		db:     db,
-		logger: logger,
-	}
-}
-
-func NewReadingSessionRepository(db *sql.DB,
-	logger jsonlog.Logger,
-) *readingSession {
-	return &readingSession{
 		db:     db,
 		logger: logger,
 	}
@@ -91,7 +77,7 @@ func (r *readingPlanRepository) GetAll(
             (:status is null or r.status = :status)
 			AND (:startDate::timestamptz IS NULL OR r.start_date >= :startDate::timestamptz)
 			AND (:targetDate::timestamptz IS NULL OR r.target_date <= :targetDate::timestamptz)
-            AND b.deleted = false
+            AND r.deleted = false
 			and r.user_id = :userID
 			and r.book_id = :bookID
         ORDER BY

@@ -29,19 +29,19 @@ type ReadingPlan struct {
 	Priority      ReadingPriority `db:"priority"`
 	PagesPerDay   int             `db:"pages_per_day"`
 	MinutesPerDay int             `db:"minutes_per_day"`
-	Book          *Book           `db:"book_id"`
-	User          *User           `db:"user_id"`
+	Book          *Book           `db:"-"`
+	User          *User           `db:"-"`
 
 	BaseModel
 }
 
 type ReadingSession struct {
-	ID          string
-	ReadingPlan ReadingPlan
-	PagesRead   int
-	Minutes     int
-	Notes       string
-	Date        time.Time
+	ID          string       `db:"id"`
+	ReadingPlan *ReadingPlan `db:"-"`
+	PagesRead   int          `db:"pages_read"`
+	Minutes     int          `db:"minutes"`
+	Notes       string       `db:"notes"`
+	Date        time.Time    `db:"date"`
 	BaseModel
 }
 
@@ -74,7 +74,7 @@ func (dto ReadingSessionDTO) ToModel() *ReadingSession {
 	}
 
 	if dto.ReadingPlan != nil {
-		model.ReadingPlan = *dto.ReadingPlan.ToModel()
+		model.ReadingPlan = dto.ReadingPlan.ToModel()
 	}
 
 	if dto.PagesRead != nil {

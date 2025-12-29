@@ -21,114 +21,32 @@ import (
 
 type Envelope map[string]any
 
-// func ConverterByTag[T any](src any, tagName string) (*T, error) {
-// 	dst := new(T)
-// 	srcVal := reflect.ValueOf(src)
-// 	if srcVal.Kind() == reflect.Pointer {
-// 		srcVal = srcVal.Elem()
-// 	}
-
-// 	dstVal := reflect.ValueOf(dst).Elem()
-// 	dstType := dstVal.Type()
-
-// 	for i := 0; i < dstVal.NumField(); i++ {
-// 		dstField := dstType.Field(i)
-// 		srcFieldName := dstField.Tag.Get(tagName)
-
-// 		if srcFieldName == "" {
-// 			srcFieldName = dstField.Name
-// 		}
-
-// 		srcField := srcVal.FieldByName(srcFieldName)
-
-// 		if srcField.IsValid() && srcField.Type().AssignableTo(dstField.Type) {
-// 			dstVal.Field(i).Set(srcField)
-// 		}
-// 	}
-
-// 	return dst, nil
-// }
-
 func ConverterByTag[T any](src any, tagName string) (*T, error) {
 	dst := new(T)
-	err := convert(reflect.ValueOf(src), reflect.ValueOf(dst), tagName)
-	if err != nil {
-		return nil, err
-	}
-	return dst, nil
-}
-
-func convert(srcVal, dstVal reflect.Value, tag string) error {
-	// unwrap ponteiros
-	for srcVal.Kind() == reflect.Pointer {
-		if srcVal.IsNil() {
-			return nil
-		}
+	srcVal := reflect.ValueOf(src)
+	if srcVal.Kind() == reflect.Pointer {
 		srcVal = srcVal.Elem()
 	}
 
-	for dstVal.Kind() == reflect.Pointer {
-		dstVal.Set(reflect.New(dstVal.Type().Elem()))
-		dstVal = dstVal.Elem()
-	}
-
-	if srcVal.Kind() != reflect.Struct || dstVal.Kind() != reflect.Struct {
-		return nil
-	}
-
+	dstVal := reflect.ValueOf(dst).Elem()
 	dstType := dstVal.Type()
 
 	for i := 0; i < dstVal.NumField(); i++ {
 		dstField := dstType.Field(i)
-		dstFieldVal := dstVal.Field(i)
+		srcFieldName := dstField.Tag.Get(tagName)
 
-		if !dstFieldVal.CanSet() {
-			continue
-		}
-
-		srcFieldName := dstField.Tag.Get(tag)
 		if srcFieldName == "" {
 			srcFieldName = dstField.Name
 		}
 
-		srcFieldVal := srcVal.FieldByName(srcFieldName)
-		if !srcFieldVal.IsValid() {
-			continue
-		}
+		srcField := srcVal.FieldByName(srcFieldName)
 
-		// unwrap ponteiro da origem
-		srcField := srcFieldVal
-		for srcField.Kind() == reflect.Pointer {
-			if srcField.IsNil() {
-				continue
-			}
-			srcField = srcField.Elem()
-		}
-
-		// 1️⃣ tipos simples
-		if srcField.Type().AssignableTo(dstFieldVal.Type()) {
-			dstFieldVal.Set(srcField)
-			continue
-		}
-
-		// 2️⃣ struct → recursivo
-		if srcField.Kind() == reflect.Struct &&
-			dstFieldVal.Kind() == reflect.Struct {
-			_ = convert(srcField, dstFieldVal, tag)
-			continue
-		}
-
-		// 3️⃣ *struct → *struct
-		if srcField.Kind() == reflect.Struct &&
-			dstFieldVal.Kind() == reflect.Pointer &&
-			dstFieldVal.Type().Elem().Kind() == reflect.Struct {
-
-			dstFieldVal.Set(reflect.New(dstFieldVal.Type().Elem()))
-			_ = convert(srcField, dstFieldVal.Elem(), tag)
+		if srcField.IsValid() && srcField.Type().AssignableTo(dstField.Type) {
+			dstVal.Field(i).Set(srcField)
 		}
 	}
 
-	return nil
+	return dst, nil
 }
 
 func ReadIntPathVariable(r *http.Request, key string) (int64, error) {
