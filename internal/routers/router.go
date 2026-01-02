@@ -14,11 +14,13 @@ import (
 )
 
 type Router struct {
-	errResp errors.ErrorResponseInterface
-	m       middleware.MiddlewareInterface
-	user    UserRoutesInterface
-	auth    AuthRoutesInterface
-	book    BookRouter
+	errResp        errors.ErrorResponseInterface
+	m              middleware.MiddlewareInterface
+	user           UserRoutesInterface
+	auth           AuthRoutesInterface
+	book           BookRouter
+	readingPlan    ReadingPlanRouter
+	readingSession ReadingSessionRouter
 }
 
 func NewRouter(
@@ -35,11 +37,13 @@ func NewRouter(
 		config,
 	)
 	return &Router{
-		errResp: e,
-		m:       m,
-		user:    NewUserRouter(h.User),
-		auth:    NewAuthRouter(h.Auth),
-		book:    NewBookRouter(h.Book, m),
+		errResp:        e,
+		m:              m,
+		user:           NewUserRouter(h.User),
+		auth:           NewAuthRouter(h.Auth),
+		book:           NewBookRouter(h.Book, m),
+		readingPlan:    NewReadingPlanRouter(h.ReadingPlan, m),
+		readingSession: NewReadingSessionRouter(h.ReadingSession, m),
 	}
 }
 
@@ -64,6 +68,8 @@ func (router *Router) RegisterRoutes() *chi.Mux {
 		router.user.UserRoutes(r)
 		router.auth.AuthRoutes(r)
 		router.book.BookRoutes(r)
+		router.readingPlan.ReadingPlanRoutes(r)
+		router.readingSession.ReadingSessionRoutes(r)
 	})
 
 	return r

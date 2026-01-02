@@ -11,11 +11,12 @@ import (
 )
 
 type Handler struct {
-	User        UserHandlerInterface
-	Auth        AuthHandlerInterface
-	Book        BookHandler
-	ReadingPlan ReadingPlanHandler
-	Service     *services.Services
+	User           UserHandlerInterface
+	Auth           AuthHandlerInterface
+	Book           BookHandler
+	ReadingPlan    ReadingPlanHandler
+	ReadingSession ReadingSessionHandler
+	Service        *services.Services
 }
 
 func NewHandler(
@@ -27,11 +28,12 @@ func NewHandler(
 	s := services.NewServices(logger, db, config)
 
 	return &Handler{
-		Service:     s,
-		User:        NewUserHandler(s.User, errRsp),
-		Auth:        NewAuthHandler(s.Auth, errRsp),
-		Book:        NewBookHandler(s.Book, errRsp),
-		ReadingPlan: NewReadingPlanHandler(s.ReadingPlan, errRsp),
+		Service:        s,
+		User:           NewUserHandler(s.User, errRsp),
+		Auth:           NewAuthHandler(s.Auth, errRsp),
+		Book:           NewBookHandler(s.Book, errRsp),
+		ReadingPlan:    NewReadingPlanHandler(s.ReadingPlan, errRsp),
+		ReadingSession: NewReadingSessionHandler(s.ReadingSession, errRsp),
 	}
 }
 
