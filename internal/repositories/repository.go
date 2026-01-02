@@ -14,9 +14,10 @@ import (
 )
 
 type Repository struct {
-	User        UserRepositoryInterface
-	Book        BookRepository
-	ReadingPlan ReadingPlanRepository
+	User           UserRepositoryInterface
+	Book           BookRepository
+	ReadingPlan    ReadingPlanRepository
+	ReadingSession ReadingSessionRepository
 }
 
 type FactoryFunc[T any] func() *T
@@ -26,9 +27,10 @@ func NewRepository(
 	db *sql.DB,
 ) *Repository {
 	return &Repository{
-		User:        NewUserRepository(db, logger),
-		Book:        NewBookRepository(db, logger),
-		ReadingPlan: NewReadingPlanRepository(db, logger),
+		User:           NewUserRepository(db, logger),
+		Book:           NewBookRepository(db, logger),
+		ReadingPlan:    NewReadingPlanRepository(db, logger),
+		ReadingSession: NewReadingSessionRepository(db, logger),
 	}
 }
 
